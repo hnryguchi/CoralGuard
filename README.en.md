@@ -80,7 +80,7 @@ pytest -q && ruff check src tests
 
 ## Project history
 
-This repository started in 2025 as a small pandas script with a three-line **fictitious** sample dataset.
+This repository was created in **October 2025**, under the author's previous account, as a small pandas script with a three-line **fictitious** sample dataset. In November 2026 it was migrated to this account with its full history; GitHub therefore shows 2026 as the creation date, while the commits keep their original dates.
 In November 2026 it was rebuilt on real NOAA data: the fictitious data was removed, and the pipeline,
 tests, dashboard and daily deployment were added. The old commits are kept for transparency.
 

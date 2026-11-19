@@ -80,7 +80,7 @@ pytest -q && ruff check src tests
 
 ## Histórico do projeto
 
-Este repositório começou em 2025 como um pequeno script em pandas com um dataset de exemplo **fictício** de três linhas.
+Este repositório foi criado em **outubro de 2025**, em uma conta anterior do autor, como um pequeno script em pandas com um dataset de exemplo **fictício** de três linhas. Em novembro de 2026 foi migrado para esta conta com o histórico completo; por isso o GitHub exibe 2026 como data de criação, mas os commits mantêm as datas originais.
 Em novembro de 2026 foi reconstruído sobre dados reais da NOAA: os dados fictícios foram removidos e foram adicionados
 o pipeline, os testes, o dashboard e o deploy diário. Os commits antigos foram mantidos por transparência.
 
