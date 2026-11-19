@@ -10,7 +10,8 @@ FIXTURE = Path(__file__).parent / "fixtures" / "abrolhos_reefs_sample.txt"
 def test_build_writes_site_and_json(tmp_path):
     st = parse(FIXTURE.read_text(encoding="utf-8"), slug="abrolhos_reefs", name="Abrolhos")
     out = build(tmp_path / "dist", [st])
-    for f in ("index.html", "app.js", "style.css", "data.json", "status.svg", "status-pt.svg", "reefs.geojson"):
+    for f in ("index.html", "app.js", "style.css", "ocean3d.js", "data.json", "status.svg", "status-pt.svg",
+              "reefs.geojson"):
         assert (out / f).exists(), f
     data = json.loads((out / "data.json").read_text(encoding="utf-8"))
     s = data["stations"][0]

@@ -2,11 +2,11 @@
 const LEVEL_COLORS = ["#7ec8d8", "#f5e400", "#f5a50a", "#e8231c", "#a10f0f", "#7a1c5c", "#4c1366", "#24093f"];
 const DHW_LINES = [4, 8, 12, 16, 20];
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const dark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
+const dark = () => true; // brand theme is always dark
 
 const I18N = {
   en: {
-    title: "How hot is the sea over Brazil's coral reefs?",
+    title: "Heat stress on Brazil's coral reefs, since 1985",
     lede: "Satellite heat stress for the 7 reef regions that NOAA Coral Reef Watch monitors in Brazil, every day since 1985.",
     dataThrough: "Data through", rebuilt: "rebuilt daily",
     kpiWorst: "highest heat stress recorded (DHW, °C-weeks)", kpiEvents: "alert-level events since 1985, all reefs",
@@ -28,9 +28,13 @@ const I18N = {
     hoverDhw: "DHW %{y:.1f} °C-weeks", hoverHeat: "max DHW", dateFmt: "%b %d, %Y", alertShort: "Alert", yTitle: "DHW (°C-weeks)",
     levels: ["No Stress", "Bleaching Watch", "Bleaching Warning", "Alert Level 1", "Alert Level 2", "Alert Level 3", "Alert Level 4", "Alert Level 5"],
     loadError: "Could not load data:",
+    hudDhw: "DHW (°C-weeks)", hudSsta: "SST anomaly", hudSst: "SST", hudNow: "now", hudReplay: "replay",
+    replayHint: "Replay 1985 to today: the 3D sea warms with the reef's measured heat stress.",
+    stripesTitle: "Warming stripes", stripesHint: "Annual mean sea surface temperature of each reef, relative to its own average over the full record. Blue: cooler years; red: warmer.",
+    hoverStripe: "vs. average",
   },
   pt: {
-    title: "Quão quente está o mar sobre os recifes de coral do Brasil?",
+    title: "Estresse térmico nos recifes de coral do Brasil, desde 1985",
     lede: "Estresse térmico medido por satélite nas 7 regiões de recifes que o NOAA Coral Reef Watch monitora no Brasil, todos os dias desde 1985.",
     dataThrough: "Dados até", rebuilt: "atualizado diariamente",
     kpiWorst: "maior estresse térmico registrado (DHW, °C-semana)", kpiEvents: "eventos em nível de alerta desde 1985, todos os recifes",
@@ -52,11 +56,14 @@ const I18N = {
     hoverDhw: "DHW %{y:.1f} °C-semana", hoverHeat: "DHW máximo", dateFmt: "%d/%m/%Y", alertShort: "Alerta", yTitle: "DHW (°C-semana)",
     levels: ["Sem estresse", "Vigilância", "Aviso de branqueamento", "Alerta nível 1", "Alerta nível 2", "Alerta nível 3", "Alerta nível 4", "Alerta nível 5"],
     loadError: "Não foi possível carregar os dados:",
+    hudDhw: "DHW (°C-semana)", hudSsta: "anomalia TSM", hudSst: "TSM", hudNow: "agora", hudReplay: "replay",
+    replayHint: "Reproduza de 1985 até hoje: o mar 3D esquenta com o estresse térmico medido no recife.",
+    stripesTitle: "Faixas de aquecimento", stripesHint: "Temperatura média anual da superfície do mar em cada recife, relativa à média do próprio recife em todo o registro. Azul: anos mais frios; vermelho: mais quentes.",
+    hoverStripe: "vs. média",
   },
 };
 
-let DATA = null, current = null, map = null;
-const markers = {};
+let DATA = null, current = null, globeRotating = true;
 let lang = (() => {
   try { const s = localStorage.getItem("cg-lang"); if (s === "pt" || s === "en") return s; } catch (e) { /* storage blocked */ }
   return (navigator.language || "en").toLowerCase().startsWith("pt") ? "pt" : "en";
@@ -83,10 +90,10 @@ function countUp(el, target, decimals = 0) {
 }
 
 function plotLayout(extra = {}) {
-  const fg = dark() ? "#e6f1fb" : "#0c1a2e", grid = dark() ? "#1f3550" : "#e3ecf3";
+  const fg = "#c6e2f3", grid = "#16324f";
   return Object.assign({
     paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)",
-    font: { family: "Segoe UI, system-ui, sans-serif", color: fg, size: 12 },
+    font: { family: "Inter, system-ui, sans-serif", color: fg, size: 12 },
     margin: { l: 56, r: 16, t: 16, b: 40 },
     xaxis: { gridcolor: grid }, yaxis: { gridcolor: grid, zeroline: false },
     hovermode: "x unified", showlegend: false, separators: lang === "pt" ? ",." : ".,",
@@ -127,23 +134,68 @@ function renderCards() {
   document.querySelectorAll(".card").forEach((c) => c.addEventListener("click", () => select(c.dataset.slug)));
 }
 
-function renderMap() {
-  map = L.map("map", { scrollWheelZoom: false }).setView([-12, -38], 4);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 9, attribution: "&copy; OpenStreetMap contributors",
-  }).addTo(map);
-  DATA.stations.forEach((s) => {
-    const m = L.circleMarker([s.lat, s.lon], {
-      radius: 9, color: "#0c1a2e", weight: 1.5, fillColor: LEVEL_COLORS[s.latest.level], fillOpacity: 0.95,
-    }).addTo(map);
-    m.on("click", () => select(s.slug));
-    markers[s.slug] = m;
-  });
-  updateMapTooltips();
+function renderGlobe() {
+  const st = DATA.stations;
+  const sel = (s) => current && s.slug === current.slug;
+  const trace = {
+    type: "scattergeo", lon: st.map((s) => s.lon), lat: st.map((s) => s.lat), customdata: st.map((s) => s.slug),
+    text: st.map((s) => `${s.name}: ${levelLabel(s.latest.level)}`), hoverinfo: "text", mode: "markers",
+    marker: { size: st.map((s) => (sel(s) ? 16 : 11)), color: st.map((s) => LEVEL_COLORS[s.latest.level]),
+      line: { color: "#e8f4fd", width: st.map((s) => (sel(s) ? 3 : 1)) } },
+  };
+  const rot = current ? { lon: current.lon, lat: current.lat * 0.6 } : { lon: -40, lat: -12 };
+  const layout = {
+    paper_bgcolor: "rgba(0,0,0,0)", margin: { l: 0, r: 0, t: 0, b: 0 }, showlegend: false, dragmode: "pan",
+    font: { family: "Inter, system-ui, sans-serif", color: "#c6e2f3" },
+    geo: {
+      projection: { type: "orthographic", rotation: rot, scale: 1.05 }, bgcolor: "rgba(0,0,0,0)",
+      showocean: true, oceancolor: "#082a46", showland: true, landcolor: "#12304d", showcountries: true, countrycolor: "#24507a",
+      showcoastlines: true, coastlinecolor: "#3a86ad", showframe: false,
+      lataxis: { showgrid: true, gridcolor: "#0f3557" }, lonaxis: { showgrid: true, gridcolor: "#0f3557" },
+    },
+  };
+  Plotly.react("globe", [trace], layout, { responsive: true, displaylogo: false, displayModeBar: false });
 }
 
-function updateMapTooltips() {
-  DATA.stations.forEach((s) => markers[s.slug].unbindTooltip().bindTooltip(`${s.name}: ${levelLabel(s.latest.level)}`));
+function spinGlobe() {
+  const el = $("globe");
+  el.addEventListener("pointerdown", () => { globeRotating = false; });
+  el.on("plotly_click", (ev) => { globeRotating = false; select(ev.points[0].customdata); });
+  if (reduceMotion) return;
+  let lon = current ? current.lon : -40;
+  const step = () => {
+    if (!globeRotating) return;
+    lon = ((lon + 0.25 + 180) % 360) - 180;
+    Plotly.relayout("globe", { "geo.projection.rotation.lon": lon });
+    setTimeout(step, 60);
+  };
+  setTimeout(step, 1500);
+}
+
+function renderStripes() {
+  const st = DATA.stations;
+  const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+  const rows = st.map((s) => {
+    const byYear = {};
+    s.weekly.dates.forEach((d, i) => {
+      const v = s.weekly.sst[i];
+      if (v == null) return;
+      const y = +d.slice(0, 4);
+      (byYear[y] = byYear[y] || []).push(v);
+    });
+    const years = Object.keys(byYear).map(Number).filter((y) => byYear[y].length >= 50).sort((a, b) => a - b);
+    const annual = years.map((y) => mean(byYear[y]));
+    const ref = mean(annual);
+    return { years, anom: annual.map((v) => v - ref) };
+  });
+  const years = [...new Set(rows.flatMap((r) => r.years))].sort((a, b) => a - b);
+  const z = rows.map((r) => years.map((y) => { const i = r.years.indexOf(y); return i < 0 ? null : r.anom[i]; }));
+  Plotly.react("stripes", [{
+    type: "heatmap", x: years, y: st.map((s) => s.name), z, zmid: 0, zmin: -0.8, zmax: 0.8,
+    colorscale: [[0, "#08306b"], [0.2, "#2171b5"], [0.4, "#9ecae1"], [0.5, "#f7f7f7"], [0.6, "#fcbba1"], [0.8, "#ef3b2c"], [1, "#67000d"]],
+    colorbar: { title: { text: "°C" }, thickness: 12 }, xgap: 0, ygap: 3,
+    hovertemplate: `%{y} · %{x}<br>%{z:+.2f} °C ${t("hoverStripe")}<extra></extra>`,
+  }], plotLayout({ margin: { l: 150, r: 16, t: 10, b: 30 }, hovermode: "closest" }), { responsive: true, displaylogo: false });
 }
 
 function renderFacts(s) {
@@ -165,7 +217,7 @@ function renderFacts(s) {
 
 function renderChart(s, animate) {
   const w = s.weekly;
-  const grid = dark() ? "#1f3550" : "#e3ecf3";
+  const grid = "#16324f";
   const shapes = DHW_LINES.map((v, i) => ({
     type: "line", xref: "paper", x0: 0, x1: 1, y0: v, y1: v, line: { color: LEVEL_COLORS[i + 3], width: 1, dash: "dot" },
   }));
@@ -177,8 +229,9 @@ function renderChart(s, animate) {
     line: { color: "#e8231c", width: 1.6, shape: "spline", smoothing: 0.3 }, fill: "tozeroy", fillcolor: "rgba(232,35,28,.15)",
     hovertemplate: `%{x|${t("dateFmt")}}<br>${t("hoverDhw")}<extra></extra>`,
   };
+  baseShapes = shapes;
   const layout = plotLayout({
-    shapes, annotations,
+    shapes: shapes.concat(cursorShape()), annotations,
     yaxis: { title: t("yTitle"), rangemode: "tozero", gridcolor: grid },
     xaxis: { rangeslider: { visible: true, thickness: 0.08 }, type: "date", gridcolor: grid },
   });
@@ -209,10 +262,10 @@ function renderEvents(s) {
 function select(slug, { animate = true } = {}) {
   current = DATA.stations.find((s) => s.slug === slug);
   document.querySelectorAll(".card").forEach((c) => c.classList.toggle("active", c.dataset.slug === slug));
-  Object.entries(markers).forEach(([k, m]) => m.setStyle({ weight: k === slug ? 4 : 1.5, radius: k === slug ? 12 : 9 }));
-  if (map && animate) map.flyTo([current.lat, current.lon], 5, { duration: reduceMotion ? 0 : 0.8 });
+  renderGlobe();
   renderFacts(current); renderChart(current, animate); renderEvents(current);
   history.replaceState(null, "", `#${slug}`);
+  stopReplay(); $("scrub").value = 1000; setWeek(current.weekly.dates.length - 1, { force: true });
 }
 
 function setLang(next) {
@@ -222,17 +275,65 @@ function setLang(next) {
   document.body.classList.add("switching");
   setTimeout(() => {
     applyStaticText();
-    if (DATA) { renderKpis(false); renderCards(); updateMapTooltips(); renderHeatmap(); select(current.slug, { animate: false }); }
+    if (DATA) { renderKpis(false); renderCards(); renderHeatmap(); renderStripes(); select(current.slug, { animate: false }); }
     document.body.classList.remove("switching");
   }, reduceMotion ? 0 : 180);
 }
 
+// ---- live 3D sea + replay (1985 to today) ---------------------------------------------------
+const ocean = window.Ocean3D ? Ocean3D.mount(document.querySelector(".hero")) : { set() {} };
+let baseShapes = [], cursorIdx = null, playing = false, lastRelayout = 0;
+
+function cursorShape() {
+  if (!current || cursorIdx === null) return [];
+  const x = current.weekly.dates[cursorIdx];
+  return [{ type: "line", xref: "x", yref: "paper", x0: x, x1: x, y0: 0, y1: 1, line: { color: "#2dd4bf", width: 2 } }];
+}
+function setWeek(i, { force = false } = {}) {
+  if (!current) return;
+  const w = current.weekly;
+  i = Math.max(0, Math.min(w.dates.length - 1, i)); cursorIdx = i;
+  const live = i === w.dates.length - 1, lvl = w.baa[i], dhw = w.dhw[i], ssta = w.ssta[i], sst = w.sst[i];
+  $("hud-title").textContent = `${live ? t("hudNow") : t("hudReplay")} · ${current.name}`;
+  $("hud-time").textContent = fmtDate(w.dates[i]);
+  $("hud-dhw").textContent = dhw == null ? "–" : fmt(dhw);
+  $("hud-ssta").textContent = ssta == null ? "–" : `${ssta >= 0 ? "+" : ""}${fmt(ssta)}°`;
+  $("hud-sst").textContent = sst == null ? "–" : `${fmt(sst)}°`;
+  $("hud-level").innerHTML = `<span class="sw" style="background:${LEVEL_COLORS[lvl]};color:${LEVEL_COLORS[lvl]}"></span>${levelLabel(lvl)}`;
+  ocean.set({ waveHeight: 1.6, wind: 7, warmth: Math.min(1, (dhw || 0) / 12 + Math.max(0, ssta || 0) * 0.12) });
+  const now = performance.now();
+  if (force || now - lastRelayout > 120) { lastRelayout = now; Plotly.relayout("chart", { shapes: baseShapes.concat(cursorShape()) }); }
+}
+function stopReplay() { playing = false; $("play").classList.remove("on"); $("play").setAttribute("aria-label", "Play"); }
+function startReplay() {
+  if (!current) return;
+  if (Number($("scrub").value) >= 1000) $("scrub").value = 0;
+  playing = true; $("play").classList.add("on"); $("play").setAttribute("aria-label", "Pause");
+  let prev = performance.now();
+  const n = current.weekly.dates.length - 1;
+  const tick = (now) => {
+    if (!playing) return;
+    const v = Math.min(1000, Number($("scrub").value) + (now - prev) / 40000 * 1000);   // ~40 years in ~40 s
+    prev = now; $("scrub").value = v; setWeek(Math.round((v / 1000) * n));
+    if (v >= 1000) { stopReplay(); setWeek(n, { force: true }); return; }
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+$("play").addEventListener("click", () => (playing ? stopReplay() : startReplay()));
+$("scrub").addEventListener("input", () => {
+  if (!current) return;
+  stopReplay();
+  setWeek(Math.round((Number($("scrub").value) / 1000) * (current.weekly.dates.length - 1)));
+});
+
 document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("click", () => setLang(b.dataset.lang)));
 applyStaticText();
 
+
 fetch("data.json").then((r) => r.json()).then((d) => {
   DATA = d;
-  renderKpis(true); renderCards(); renderMap(); renderHeatmap();
+  renderKpis(true); renderCards(); renderHeatmap(); renderStripes();
   document.getElementById("heatmap").on("plotly_click", (ev) => {
     const s = DATA.stations.find((x) => x.name === ev.points[0].y); if (s) select(s.slug);
   });
@@ -240,6 +341,7 @@ fetch("data.json").then((r) => r.json()).then((d) => {
   const initial = d.stations.find((s) => s.slug === fromHash) ||
     d.stations.reduce((a, b) => (Math.max(...b.yearly.max_dhw) > Math.max(...a.yearly.max_dhw) ? b : a));
   select(initial.slug);
+  spinGlobe();
 }).catch((e) => {
   document.querySelector("main").insertAdjacentHTML("afterbegin", `<p>${t("loadError")} ${e}</p>`);
 });
