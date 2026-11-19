@@ -1,8 +1,0 @@
-# === CoralGuard – versão inicial ===
-# Dados fictícios de recifes de coral
-# Futuras versões terão datasets reais e mais detalhados
-
-Nome,Localização,Estado
-Coral A,Oceano Atlântico,Saudável
-Coral B,Oceano Pacífico,Em Risco
-Coral C,Oceano Índico,Em Risco
