@@ -1,0 +1,152 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -33.1,
+     -3.875
+    ]
+   },
+   "properties": {
+    "reef": "Fernando de Noronha",
+    "worst_year": 2024,
+    "worst_max_dhw_degC_weeks": 19.83,
+    "alert_events_since_1985": 5,
+    "sst_trend_degC_per_decade": 0.193,
+    "data_up_to": "2026-11-17",
+    "source": "NOAA Coral Reef Watch v3.1 virtual station",
+    "marker-color": "#c0182a",
+    "marker-symbol": "water"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -35.125,
+     -6.1
+    ]
+   },
+   "properties": {
+    "reef": "Maracajaú",
+    "worst_year": 2024,
+    "worst_max_dhw_degC_weeks": 22.19,
+    "alert_events_since_1985": 15,
+    "sst_trend_degC_per_decade": 0.211,
+    "data_up_to": "2026-11-17",
+    "source": "NOAA Coral Reef Watch v3.1 virtual station",
+    "marker-color": "#7a0019",
+    "marker-symbol": "water"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -35.525,
+     -9.25
+    ]
+   },
+   "properties": {
+    "reef": "Costa dos Corais",
+    "worst_year": 2024,
+    "worst_max_dhw_degC_weeks": 21.37,
+    "alert_events_since_1985": 10,
+    "sst_trend_degC_per_decade": 0.216,
+    "data_up_to": "2026-11-17",
+    "source": "NOAA Coral Reef Watch v3.1 virtual station",
+    "marker-color": "#7a0019",
+    "marker-symbol": "water"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -38.375,
+     -13.375
+    ]
+   },
+   "properties": {
+    "reef": "Todos os Santos",
+    "worst_year": 2024,
+    "worst_max_dhw_degC_weeks": 20.92,
+    "alert_events_since_1985": 12,
+    "sst_trend_degC_per_decade": 0.28,
+    "data_up_to": "2026-11-17",
+    "source": "NOAA Coral Reef Watch v3.1 virtual station",
+    "marker-color": "#7a0019",
+    "marker-symbol": "water"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -39.0,
+     -17.225
+    ]
+   },
+   "properties": {
+    "reef": "Abrolhos",
+    "worst_year": 2019,
+    "worst_max_dhw_degC_weeks": 19.65,
+    "alert_events_since_1985": 16,
+    "sst_trend_degC_per_decade": 0.223,
+    "data_up_to": "2026-11-17",
+    "source": "NOAA Coral Reef Watch v3.1 virtual station",
+    "marker-color": "#c0182a",
+    "marker-symbol": "water"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -29.125,
+     -20.475
+    ]
+   },
+   "properties": {
+    "reef": "Trindade e Martim Vaz",
+    "worst_year": 2024,
+    "worst_max_dhw_degC_weeks": 11.35,
+    "alert_events_since_1985": 5,
+    "sst_trend_degC_per_decade": 0.104,
+    "data_up_to": "2026-11-17",
+    "source": "NOAA Coral Reef Watch v3.1 virtual station",
+    "marker-color": "#e4572e",
+    "marker-symbol": "water"
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -41.8,
+     -22.725
+    ]
+   },
+   "properties": {
+    "reef": "Búzios",
+    "worst_year": 2019,
+    "worst_max_dhw_degC_weeks": 15.15,
+    "alert_events_since_1985": 6,
+    "sst_trend_degC_per_decade": 0.045,
+    "data_up_to": "2026-11-17",
+    "source": "NOAA Coral Reef Watch v3.1 virtual station",
+    "marker-color": "#c0182a",
+    "marker-symbol": "water"
+   }
+  }
+ ]
+}

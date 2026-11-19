@@ -59,7 +59,35 @@ def build(out_dir: Path, stations: list[Station]) -> Path:
     }
     (out_dir / "data.json").write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
     (out_dir / "status.svg").write_text(status_svg(payload["stations"]), encoding="utf-8")
+    (out_dir / "reefs.geojson").write_text(json.dumps(reefs_geojson(payload["stations"]), indent=1,
+                                                      ensure_ascii=False), encoding="utf-8")
     return out_dir
+
+
+def reefs_geojson(stations: list[dict]) -> dict:
+    """One point per reef with its record year and trend; GitHub renders .geojson files as an interactive map."""
+    features = []
+    for s in stations:
+        y = s["yearly"]
+        i = max(range(len(y["years"])), key=lambda k: y["max_dhw"][k])
+        worst = y["max_dhw"][i]
+        color = "#7a0019" if worst >= 20 else "#c0182a" if worst >= 12 else "#e4572e" if worst >= 8 else "#f29a2e"
+        features.append({
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [s["lon"], s["lat"]]},
+            "properties": {
+                "reef": s["name"],
+                "worst_year": y["years"][i],
+                "worst_max_dhw_degC_weeks": worst,
+                "alert_events_since_1985": len(s["events"]),
+                "sst_trend_degC_per_decade": s["trend"]["per_decade"] if s["trend"] else None,
+                "data_up_to": s["latest"]["date"],
+                "source": "NOAA Coral Reef Watch v3.1 virtual station",
+                "marker-color": color,
+                "marker-symbol": "water",
+            },
+        })
+    return {"type": "FeatureCollection", "features": features}
 
 
 # NOAA CRW Bleaching Alert Area colours, from "No Stress" (0) to "Alert Level 5" (7).

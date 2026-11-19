@@ -30,6 +30,15 @@ Values computed by this pipeline from NOAA CRW data through 2026-11-17:
 
 <img src="docs/heatmap.png" alt="Heatmap of the highest heat stress per year and reef: 2019, 2020 and 2024 stand out in dark red across most reefs" width="100%">
 
+## Today, and on a map
+
+<a href="https://hnryguchi.github.io/CoralGuard/"><img src="https://hnryguchi.github.io/CoralGuard/status.svg" alt="Today's SST anomaly, heat stress and bleaching alert level per reef" width="540"></a>
+
+This card is regenerated with the dashboard every day. [`reefs.geojson`](reefs.geojson) opens as an interactive
+map on GitHub: click a reef to see its worst year, alert events and warming trend (snapshot of the data through
+2026-11-17; the daily build publishes a fresh copy at
+[hnryguchi.github.io/CoralGuard/reefs.geojson](https://hnryguchi.github.io/CoralGuard/reefs.geojson)).
+
 ## How it works
 
 ```mermaid
