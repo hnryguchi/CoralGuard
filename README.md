@@ -1,89 +1,91 @@
 # CoralGuard
 
-**How hot is the sea over Brazil's coral reefs?** An interactive dashboard of satellite heat stress for the
-7 reef regions that NOAA Coral Reef Watch monitors in Brazil, every day since 1985, rebuilt automatically every day.
+**Português** · [English](README.en.md)
 
-**▶ Live dashboard: [hnryguchi.github.io/CoralGuard](https://hnryguchi.github.io/CoralGuard/)**
+Estresse térmico por satélite nas 7 regiões recifais que o NOAA Coral Reef Watch monitora no Brasil, com série
+diária desde 1985, publicado como dashboard interativo reconstruído automaticamente todos os dias.
+
+**Dashboard ao vivo: [hnryguchi.github.io/CoralGuard](https://hnryguchi.github.io/CoralGuard/)**
 
 [![Pages](https://github.com/hnryguchi/CoralGuard/actions/workflows/pages.yml/badge.svg)](https://github.com/hnryguchi/CoralGuard/actions/workflows/pages.yml)
 [![CI](https://github.com/hnryguchi/CoralGuard/actions/workflows/ci.yml/badge.svg)](https://github.com/hnryguchi/CoralGuard/actions/workflows/ci.yml)
 
-<img src="docs/demo.gif" alt="Dashboard demo: animated header with key numbers, then the heat-stress chart switching between Abrolhos, Maracajaú, Todos os Santos, Fernando de Noronha and Costa dos Corais" width="100%">
+<img src="docs/demo.gif" alt="Demonstração do dashboard: cabeçalho animado com os números principais e o gráfico de estresse térmico alternando entre Abrolhos, Maracajaú, Todos os Santos, Fernando de Noronha e Costa dos Corais" width="100%">
 
-## What the data shows
+## O que os dados mostram
 
-Values computed by this pipeline from NOAA CRW data through 2026-11-17:
+Valores calculados por este pipeline a partir dos dados do NOAA CRW até 2026-11-17:
 
-| Reef region | Worst year (max DHW, °C-weeks) | Alert-level events since 1985 | Sea surface temperature trend |
+| Região recifal | Pior ano (DHW máximo, °C-semanas) | Eventos em nível de alerta desde 1985 | Tendência da temperatura da superfície do mar |
 |---|---|---|---|
-| Maracajaú | 2024 (22.2) | 15 | +0.21 °C / decade |
-| Costa dos Corais | 2024 (21.4) | 10 | +0.22 °C / decade |
-| Todos os Santos | 2024 (20.9) | 12 | +0.28 °C / decade |
-| Fernando de Noronha | 2024 (19.8) | 5 | +0.19 °C / decade |
-| Abrolhos | 2019 (19.6) | 16 | +0.22 °C / decade |
-| Búzios | 2019 (15.1) | 6 | +0.05 °C / decade |
-| Trindade e Martim Vaz | 2024 (11.3) | 5 | +0.10 °C / decade |
+| Maracajaú | 2024 (22.2) | 15 | +0.21 °C / década |
+| Costa dos Corais | 2024 (21.4) | 10 | +0.22 °C / década |
+| Todos os Santos | 2024 (20.9) | 12 | +0.28 °C / década |
+| Fernando de Noronha | 2024 (19.8) | 5 | +0.19 °C / década |
+| Abrolhos | 2019 (19.6) | 16 | +0.22 °C / década |
+| Búzios | 2019 (15.1) | 6 | +0.05 °C / década |
+| Trindade e Martim Vaz | 2024 (11.3) | 5 | +0.10 °C / década |
 
-- **2024 was the worst year on record** for five of the seven regions, in line with the fourth global coral bleaching event declared by NOAA.
-- Three regions crossed **20 °C-weeks**, the threshold of CRW's highest level (Alert Level 5, risk of near-complete coral mortality).
-- Every region warmed between 1985 and 2025.
+- **2024 foi o pior ano da série** em cinco das sete regiões, em linha com o quarto evento global de branqueamento de corais declarado pela NOAA.
+- Três regiões ultrapassaram **20 °C-semanas**, limiar do nível mais alto do CRW (Alert Level 5, risco de mortalidade quase total dos corais).
+- Todas as regiões aqueceram entre 1985 e 2025.
 
-<img src="docs/heatmap.png" alt="Heatmap of the highest heat stress per year and reef: 2019, 2020 and 2024 stand out in dark red across most reefs" width="100%">
+<img src="docs/heatmap.png" alt="Mapa de calor do maior estresse térmico por ano e recife: 2019, 2020 e 2024 se destacam em vermelho escuro na maioria dos recifes" width="100%">
 
-## Today, and on a map
+## Situação atual e mapa
 
-<a href="https://hnryguchi.github.io/CoralGuard/"><img src="https://hnryguchi.github.io/CoralGuard/status.svg" alt="Today's SST anomaly, heat stress and bleaching alert level per reef" width="540"></a>
+<a href="https://hnryguchi.github.io/CoralGuard/"><img src="https://hnryguchi.github.io/CoralGuard/status-pt.svg" alt="Anomalia de TSM, estresse térmico e nível de alerta de branqueamento de hoje, por recife" width="540"></a>
 
-This card is regenerated with the dashboard every day. [`reefs.geojson`](reefs.geojson) opens as an interactive
-map on GitHub: click a reef to see its worst year, alert events and warming trend (snapshot of the data through
-2026-11-17; the daily build publishes a fresh copy at
+Este card é regenerado junto com o dashboard todos os dias. [`reefs.geojson`](reefs.geojson) abre como mapa
+interativo no GitHub: clique em um recife para ver o pior ano, os eventos de alerta e a tendência de aquecimento
+(snapshot dos dados até 2026-11-17; o build diário publica uma cópia atualizada em
 [hnryguchi.github.io/CoralGuard/reefs.geojson](https://hnryguchi.github.io/CoralGuard/reefs.geojson)).
 
-## How it works
+## Como funciona
 
 ```mermaid
 flowchart LR
-    A[NOAA Coral Reef Watch<br/>7 Brazilian virtual stations] -->|daily, GitHub Actions| B[Python pipeline<br/>parse, validate]
-    B --> C[Analyses<br/>yearly maxima, alert events,<br/>SST trend, weekly series]
+    A[NOAA Coral Reef Watch<br/>7 estações virtuais brasileiras] -->|diário, GitHub Actions| B[Pipeline Python<br/>parsing, validação]
+    B --> C[Análises<br/>máximos anuais, eventos de alerta,<br/>tendência de TSM, série semanal]
     C --> D[data.json]
-    D --> E[Static dashboard<br/>Plotly + Leaflet]
+    D --> E[Dashboard estático<br/>Plotly + Leaflet]
     E -->|deploy| F[GitHub Pages]
 ```
 
 - **Pipeline** (`src/coralguard`, pandas/numpy):
-  - parses CRW Regional Virtual Station files (header metadata and daily table);
-  - computes yearly maximum Degree Heating Weeks (DHW), days at Alert Level 1 or above, and alert events (consecutive alert days, merged across gaps of up to 7 days);
-  - fits a linear trend of annual mean SST over complete years;
-  - writes weekly maxima to keep the browser payload small.
+  - faz o parsing dos arquivos Regional Virtual Station do CRW (metadados do cabeçalho e tabela diária);
+  - calcula o Degree Heating Weeks (DHW) máximo anual, os dias em Alert Level 1 ou acima e os eventos de alerta (dias consecutivos em alerta, unidos através de lacunas de até 7 dias);
+  - ajusta uma tendência linear da TSM média anual sobre os anos completos;
+  - grava máximos semanais para manter pequeno o payload enviado ao navegador.
 - **Dashboard** (`src/coralguard/site/`):
-  - static HTML/CSS/JS: live status cards, a map, the DHW time series with CRW alert thresholds and a range slider, a year-by-reef heatmap and an events table;
-  - animations respect `prefers-reduced-motion`.
-- **Automation:** `.github/workflows/pages.yml` downloads fresh data, rebuilds and deploys every day. CI runs lint and tests on every push. GitHub pauses scheduled workflows in repositories with no activity for 60 days; the badge above shows the last run.
+  - HTML/CSS/JS estático: cards de status ao vivo, mapa, série temporal de DHW com os limiares de alerta do CRW e range slider, mapa de calor ano × recife e tabela de eventos;
+  - as animações respeitam `prefers-reduced-motion`.
+- **Automação:** `.github/workflows/pages.yml` baixa dados novos, reconstrói e faz o deploy todos os dias. O CI roda lint e testes a cada push. O GitHub pausa workflows agendados em repositórios sem atividade por 60 dias; o badge acima mostra a última execução.
 
-## What this is, and what it is not
+## Escopo e limitações
 
-- DHW and Bleaching Alert Area are **satellite-derived heat-stress indicators that predict bleaching risk**. They are not field observations of bleaching. Confirming bleaching needs in-water surveys.
-- Each station summarises a regional polygon using CRW's 90th-percentile HotSpot method. Local conditions within a reef can differ.
-- SST trends are simple linear fits on annual means, a descriptive summary rather than a formal climate attribution.
+- DHW e Bleaching Alert Area são **indicadores de estresse térmico derivados de satélite que estimam o risco de branqueamento**. Não são observações de campo de branqueamento; a confirmação exige levantamentos subaquáticos.
+- Cada estação resume um polígono regional pelo método HotSpot de percentil 90 do CRW. As condições locais dentro de um recife podem diferir.
+- As tendências de TSM são ajustes lineares simples sobre médias anuais: um resumo descritivo, não uma atribuição climática formal.
 
-## Run locally
+## Execução local
 
 ```bash
 python -m venv .venv && . .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
-coralguard summary                                # text summary per reef (downloads ~7 MB)
+coralguard summary                                # resumo em texto por recife (baixa ~7 MB)
 coralguard build --out dist && python -m http.server -d dist 8000
 pytest -q && ruff check src tests
 ```
 
-## Project history
+## Histórico do projeto
 
-This repository started in 2025 as a small pandas script with a three-line **fictitious** sample dataset.
-In November 2026 it was rebuilt on real NOAA data: the fictitious data was removed, and the pipeline,
-tests, dashboard and daily deployment were added. The old commits are kept for transparency.
+Este repositório começou em 2025 como um pequeno script em pandas com um dataset de exemplo **fictício** de três linhas.
+Em novembro de 2026 foi reconstruído sobre dados reais da NOAA: os dados fictícios foram removidos e foram adicionados
+o pipeline, os testes, o dashboard e o deploy diário. Os commits antigos foram mantidos por transparência.
 
-## Data and license
+## Dados e licença
 
-- Data: NOAA Coral Reef Watch. 2018, updated daily. *NOAA Coral Reef Watch Version 3.1 Daily Global 5km Satellite Coral Bleaching Heat Stress Monitoring Product Suite*, Regional Virtual Stations. College Park, Maryland, USA: NOAA Coral Reef Watch. Public domain. Tests use a real excerpt (Abrolhos, 2019 and Oct–Nov 2026).
-- Map tiles © OpenStreetMap contributors.
-- Code: MIT © Henry Noguchi.
+- Dados: NOAA Coral Reef Watch. 2018, atualizado diariamente. *NOAA Coral Reef Watch Version 3.1 Daily Global 5km Satellite Coral Bleaching Heat Stress Monitoring Product Suite*, Regional Virtual Stations. College Park, Maryland, USA: NOAA Coral Reef Watch. Domínio público. Os testes usam um trecho real (Abrolhos, 2019 e out–nov de 2026).
+- Tiles do mapa © colaboradores do OpenStreetMap.
+- Código: MIT © Henry Noguchi.
