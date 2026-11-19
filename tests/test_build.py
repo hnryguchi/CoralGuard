@@ -20,7 +20,7 @@ def test_build_writes_site_and_json(tmp_path):
     svg = (out / "status.svg").read_text(encoding="utf-8")
     assert svg.startswith("<svg") and svg.endswith("</svg>") and "Abrolhos" in svg
     pt = (out / "status-pt.svg").read_text(encoding="utf-8")
-    assert "Recifes de coral do Brasil" in pt and "Alert level" not in pt
+    assert "Recifes de coral do Brasil" in pt and "Alert level" not in pt and "#081a2e" in pt
     geo = json.loads((out / "reefs.geojson").read_text(encoding="utf-8"))
     (feat,) = geo["features"]
     assert feat["properties"]["reef"] == "Abrolhos" and len(feat["geometry"]["coordinates"]) == 2

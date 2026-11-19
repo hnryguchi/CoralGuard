@@ -59,7 +59,7 @@ def build(out_dir: Path, stations: list[Station]) -> Path:
     }
     (out_dir / "data.json").write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
     (out_dir / "status.svg").write_text(status_svg(payload["stations"]), encoding="utf-8")
-    (out_dir / "status-pt.svg").write_text(status_svg(payload["stations"], lang="pt"), encoding="utf-8")
+    (out_dir / "status-pt.svg").write_text(brand(status_svg(payload["stations"], lang="pt")), encoding="utf-8")
     (out_dir / "reefs.geojson").write_text(json.dumps(reefs_geojson(payload["stations"]), indent=1,
                                                       ensure_ascii=False), encoding="utf-8")
     return out_dir
@@ -153,3 +153,16 @@ def status_svg(stations: list[dict], lang: str = "en") -> str:
 
 def _esc(s: str) -> str:
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def brand(svg: str) -> str:
+    """Fixed navy palette (the profile README's brand), regardless of the viewer's light/dark theme."""
+    for old, new in (
+        ("@media (prefers-color-scheme:dark){text{fill:#e6edf3}.m{fill:#9198a1}.bg{fill:#0d1117;stroke:#3d444d}}", ""),
+        ("fill:#1f2328}", "fill:#f0f9ff}"),
+        (".m{fill:#59636e;", ".m{fill:#9cc3dc;"),
+        (".bg{fill:#ffffff;stroke:#d1d9e0}", ".bg{fill:#081a2e;stroke:#16324f}"),
+    ):
+        assert old in svg, old
+        svg = svg.replace(old, new)
+    return svg
