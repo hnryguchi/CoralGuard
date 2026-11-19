@@ -59,6 +59,7 @@ def build(out_dir: Path, stations: list[Station]) -> Path:
     }
     (out_dir / "data.json").write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
     (out_dir / "status.svg").write_text(status_svg(payload["stations"]), encoding="utf-8")
+    (out_dir / "status-pt.svg").write_text(status_svg(payload["stations"], lang="pt"), encoding="utf-8")
     (out_dir / "reefs.geojson").write_text(json.dumps(reefs_geojson(payload["stations"]), indent=1,
                                                       ensure_ascii=False), encoding="utf-8")
     return out_dir
@@ -94,16 +95,32 @@ def reefs_geojson(stations: list[dict]) -> dict:
 LEVEL_COLORS = ["#4f9fd6", "#e8cf3a", "#f29a2e", "#e4572e", "#c0182a", "#8e0f2a", "#6a0d3a", "#4a0a4f"]
 
 
-def status_svg(stations: list[dict]) -> str:
+TEXT = {
+    "en": dict(aria="Heat stress on Brazil's coral reefs today", title="Brazil's coral reefs: heat stress today",
+               data="NOAA Coral Reef Watch · data for", to="to", ssta="SST anomaly", dhw="Heat stress (DHW)",
+               level="Alert level", unit="°C-wk",
+               foot="DHW: accumulated heat stress over 12 weeks · rebuilt daily by GitHub Actions", labels=None),
+    "pt": dict(aria="Estresse térmico nos recifes de coral do Brasil hoje",
+               title="Recifes de coral do Brasil: estresse térmico hoje",
+               data="NOAA Coral Reef Watch · dados de", to="a", ssta="Anomalia TSM", dhw="Estresse (DHW)",
+               level="Nível de alerta", unit="°C-sem",
+               foot="DHW: calor acumulado em 12 semanas · atualizado todo dia pelo GitHub Actions",
+               labels=["Sem estresse", "Observação", "Aviso", "Alerta 1", "Alerta 2", "Alerta 3", "Alerta 4",
+                       "Alerta 5"]),
+}
+
+
+def status_svg(stations: list[dict], lang: str = "en") -> str:
     """A small card with today's heat stress per reef, for embedding as an image (e.g. a GitHub README)."""
+    tx = TEXT[lang]
     rows = sorted(stations, key=lambda s: (-s["latest"]["level"], -s["latest"]["dhw"]))
     width, row_h, top = 540, 26, 76
     height = top + row_h * len(rows) + 30
     dates = sorted({s["latest"]["date"] for s in rows})
-    date_txt = dates[-1] if len(dates) == 1 else f"{dates[0]} to {dates[-1]}"
+    date_txt = dates[-1] if len(dates) == 1 else f"{dates[0]} {tx['to']} {dates[-1]}"
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}"'
-        ' role="img" aria-label="Heat stress on Brazil\'s coral reefs today">',
+        f' role="img" aria-label="{_esc(tx["aria"])}">',
         "<style>"
         "text{font:13px -apple-system,'Segoe UI',Helvetica,Arial,sans-serif;fill:#1f2328}"
         ".t{font-weight:600;font-size:15px}.m{fill:#59636e;font-size:11px}.v{font-variant-numeric:tabular-nums}"
@@ -114,11 +131,11 @@ def status_svg(stations: list[dict]) -> str:
         "</style>",
         f'<rect class="bg" x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="8"/>',
         '<circle class="live" cx="20" cy="24" r="5" fill="#e4572e"/>',
-        '<text class="t" x="34" y="29">Brazil\'s coral reefs: heat stress today</text>',
-        f'<text class="m" x="20" y="48">NOAA Coral Reef Watch · data for {date_txt}</text>',
-        '<text class="m" x="215" y="68">SST anomaly</text>',
-        '<text class="m" x="305" y="68">Heat stress (DHW)</text>',
-        '<text class="m" x="420" y="68">Alert level</text>',
+        f'<text class="t" x="34" y="29">{_esc(tx["title"])}</text>',
+        f'<text class="m" x="20" y="48">{tx["data"]} {date_txt}</text>',
+        f'<text class="m" x="215" y="68">{tx["ssta"]}</text>',
+        f'<text class="m" x="305" y="68">{tx["dhw"]}</text>',
+        f'<text class="m" x="420" y="68">{tx["level"]}</text>',
     ]
     for i, s in enumerate(rows):
         y = top + i * row_h + 17
@@ -127,13 +144,10 @@ def status_svg(stations: list[dict]) -> str:
             f'<circle cx="26" cy="{y - 4}" r="6" fill="{LEVEL_COLORS[lv["level"]]}"/>',
             f'<text x="42" y="{y}">{_esc(s["name"])}</text>',
             f'<text class="v" x="215" y="{y}">{lv["ssta"]:+.1f} °C</text>',
-            f'<text class="v" x="305" y="{y}">{lv["dhw"]:.1f} °C-wk</text>',
-            f'<text x="420" y="{y}">{_esc(lv["label"])}</text>',
+            f'<text class="v" x="305" y="{y}">{lv["dhw"]:.1f} {tx["unit"]}</text>',
+            f'<text x="420" y="{y}">{_esc(tx["labels"][lv["level"]] if tx["labels"] else lv["label"])}</text>',
         ]
-    parts.append(
-        f'<text class="m" x="20" y="{height - 12}">'
-        "DHW: accumulated heat stress over 12 weeks · rebuilt daily by GitHub Actions</text></svg>"
-    )
+    parts.append(f'<text class="m" x="20" y="{height - 12}">{tx["foot"]}</text></svg>')
     return "".join(parts)
 
 
