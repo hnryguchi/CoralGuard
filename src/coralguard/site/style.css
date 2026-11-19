@@ -75,3 +75,12 @@ th { color: var(--muted); font-weight: 600; }
   .w1, .w2, .w3, .card .dot.pulse::after { animation: none; }
   .card { animation: none; opacity: 1; }
 }
+
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.lang { display: inline-flex; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; overflow: hidden; }
+.lang button { background: transparent; color: #e0f2fe; border: 0; padding: 6px 12px; font: 600 12px/1 ui-monospace, Consolas, monospace;
+  cursor: pointer; letter-spacing: .06em; transition: background .2s, color .2s; }
+.lang button[aria-pressed="true"] { background: #e0f2fe; color: #062a4a; }
+.lang button:focus-visible { outline: 2px solid #7dd3fc; outline-offset: -2px; }
+[data-i18n], [data-i18n-html], #chart-title, #events-title, #facts { transition: opacity .25s ease; }
+body.switching [data-i18n], body.switching [data-i18n-html], body.switching #facts { opacity: .2; }

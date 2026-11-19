@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoralGuard</title>
+<meta name="description" content="Satellite heat stress on Brazil's coral reefs since 1985, from NOAA Coral Reef Watch data. Updated daily. | Estresse térmico nos recifes de coral do Brasil desde 1985.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23062a4a'/%3E%3Cpath d='M4 20q6-6 12 0t12 0' fill='none' stroke='%2338bdf8' stroke-width='3'/%3E%3Ccircle cx='16' cy='11' r='4' fill='%23f5a50a'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="topbar">
+      <p class="eyebrow">CoralGuard · Brasil / Brazil</p>
+      <div class="lang" role="group" aria-label="Language / Idioma">
+        <button type="button" data-lang="pt">PT</button><button type="button" data-lang="en">EN</button>
+      </div>
+    </div>
+    <h1 data-i18n="title"></h1>
+    <p class="lede"><span data-i18n="lede"></span>
+      <span class="updated"><span data-i18n="dataThrough"></span> <b id="last-date">…</b> · <span data-i18n="rebuilt"></span></span></p>
+    <div class="kpis">
+      <div class="kpi"><span class="num" id="kpi-worst">0</span><span class="lbl" data-i18n="kpiWorst"></span></div>
+      <div class="kpi"><span class="num" id="kpi-events">0</span><span class="lbl" data-i18n="kpiEvents"></span></div>
+      <div class="kpi"><span class="num" id="kpi-trend">0</span><span class="lbl" data-i18n="kpiTrend"></span></div>
+    </div>
+  </div>
+  <svg class="waves" viewBox="0 0 2880 120" preserveAspectRatio="none" aria-hidden="true">
+    <path class="w w1" d="M0 60 Q 360 20 720 60 T 1440 60 T 2160 60 T 2880 60 V120 H0 Z"/>
+    <path class="w w2" d="M0 72 Q 360 108 720 72 T 1440 72 T 2160 72 T 2880 72 V120 H0 Z"/>
+    <path class="w w3" d="M0 88 Q 360 66 720 88 T 1440 88 T 2160 88 T 2880 88 V120 H0 Z"/>
+  </svg>
+</header>
+
+<main>
+  <section>
+    <h2 data-i18n="nowTitle"></h2>
+    <p class="hint" data-i18n="nowHint"></p>
+    <div id="cards" class="cards"></div>
+  </section>
+
+  <section class="split">
+    <div id="map" class="map" role="region" aria-label="Map / Mapa"></div>
+    <div class="facts" id="facts"></div>
+  </section>
+
+  <section>
+    <h2 id="chart-title"></h2>
+    <p class="hint" data-i18n="chartHint"></p>
+    <div id="chart" class="chart"></div>
+  </section>
+
+  <section>
+    <h2 data-i18n="heatTitle"></h2>
+    <p class="hint" data-i18n="heatHint"></p>
+    <div id="heatmap" class="chart tall"></div>
+  </section>
+
+  <section>
+    <h2 id="events-title"></h2>
+    <div class="table-wrap"><table id="events"><thead><tr>
+      <th data-i18n="thStart"></th><th data-i18n="thEnd"></th><th data-i18n="thDays"></th><th data-i18n="thPeakDhw"></th><th data-i18n="thPeakLevel"></th>
+    </tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="method">
+    <h2 data-i18n="aboutTitle"></h2>
+    <ul>
+      <li data-i18n-html="aboutSource"></li>
+      <li data-i18n-html="aboutWhat"></li>
+      <li data-i18n-html="aboutProcessing"></li>
+      <li data-i18n-html="aboutCode"></li>
+    </ul>
+    <p class="small" id="generated"></p>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.33.0/plotly.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

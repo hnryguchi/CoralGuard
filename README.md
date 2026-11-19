@@ -46,7 +46,7 @@ flowchart LR
   - computes yearly maximum Degree Heating Weeks (DHW), days at Alert Level 1 or above, and alert events (consecutive alert days, merged across gaps of up to 7 days);
   - fits a linear trend of annual mean SST over complete years;
   - writes weekly maxima to keep the browser payload small.
-- **Dashboard** (`site/`):
+- **Dashboard** (`src/coralguard/site/`):
   - static HTML/CSS/JS: live status cards, a map, the DHW time series with CRW alert thresholds and a range slider, a year-by-reef heatmap and an events table;
   - animations respect `prefers-reduced-motion`.
 - **Automation:** `.github/workflows/pages.yml` downloads fresh data, rebuilds and deploys every day. CI runs lint and tests on every push. GitHub pauses scheduled workflows in repositories with no activity for 60 days; the badge above shows the last run.
